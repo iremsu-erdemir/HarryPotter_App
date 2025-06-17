@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:audioplayers/audioplayers.dart'; // yeni
 import 'package:harry_potter_app/providers/character_provider.dart';
 import 'package:harry_potter_app/widgets/character_card.dart';
 import 'package:harry_potter_app/widgets/error_message_widget.dart';
@@ -14,6 +15,9 @@ class CharacterListScreen extends HookConsumerWidget {
     final charactersAsyncValue = ref.watch(filteredCharactersProvider);
     final selectedHouse = ref.watch(houseFilterProvider);
     final searchController = useTextEditingController();
+
+    final player = useMemoized(() => AudioPlayer());
+    final isPlaying = useState(false);
 
     final List<String> houses = [
       'Tümü',
@@ -44,6 +48,33 @@ class CharacterListScreen extends HookConsumerWidget {
     const List<Shadow> iconShadows = [
       Shadow(color: Colors.black54, blurRadius: 4, offset: Offset(2, 2)),
     ];
+
+    // Müzik başlatma / durdurma fonksiyonu
+    void toggleMusic() async {
+      if (isPlaying.value) {
+        await player.pause();
+        isPlaying.value = false;
+      } else {
+        // loop özelliğiyle çalabiliriz (sonsuz döngü)
+        await player.play(AssetSource('sounds/harry_potter.mp3'), volume: 0.7);
+        isPlaying.value = true;
+      }
+    }
+
+    // Ekran kapanırken player'ı durdur ve kapat
+    useEffect(() {
+      // İlk açılışta müziği otomatik başlat
+      Future.microtask(() async {
+        await player.play(AssetSource('sounds/harry_potter.mp3'), volume: 0.7);
+        isPlaying.value = true;
+      });
+
+      // Ekrandan çıkıldığında müziği durdur ve player'ı kapat
+      return () {
+        player.stop();
+        player.dispose();
+      };
+    }, []);
 
     return Scaffold(
       appBar: AppBar(
@@ -97,47 +128,72 @@ class CharacterListScreen extends HookConsumerWidget {
           ),
           cursorColor: const Color.fromARGB(255, 255, 238, 7),
         ),
+        centerTitle: false,
+        // title sadece TextField, yanındaki widgetlar Row içinde hizalanacak
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: DropdownButton<String>(
-              value: selectedHouse,
-              hint: Text(
-                'Evi Seç...',
-                style: customTextStyle.copyWith(
-                  color: const Color.fromARGB(255, 248, 248, 248),
-                ),
-              ),
-              dropdownColor: deepNightBlue,
-              icon: ShaderMask(
-                shaderCallback:
-                    (bounds) => const LinearGradient(
-                      colors: [Color(0xFFFFEB3B), Color(0xFFFFF176)],
-                    ).createShader(bounds),
-                child: const Icon(
-                  Icons.list_sharp,
-                  color: Color.fromARGB(255, 253, 230, 25),
-                  shadows: iconShadows,
-                ),
-              ),
-              underline: const SizedBox(),
-              onChanged: (String? newValue) {
-                ref.read(houseFilterProvider.notifier).state = newValue;
-              },
-              items:
-                  houses.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(
-                        value,
-                        style: customTextStyle.copyWith(
-                          color: const Color.fromARGB(255, 206, 177, 223),
-                        ),
+          // Dropdown ve müzik butonunu Row ile ortaya hizalıyoruz
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon list ve Dropdown'ı ortala
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ShaderMask(
+                    shaderCallback:
+                        (bounds) => const LinearGradient(
+                          colors: [Color(0xFFFFEB3B), Color(0xFFFFF176)],
+                        ).createShader(bounds),
+                  ),
+                  const SizedBox(width: 4),
+                  DropdownButton<String>(
+                    value: selectedHouse,
+                    hint: Text(
+                      'Tümü',
+                      style: customTextStyle.copyWith(
+                        color: const Color.fromARGB(255, 248, 248, 248),
                       ),
-                    );
-                  }).toList(),
-            ),
+                    ),
+                    dropdownColor: deepNightBlue,
+                    underline: const SizedBox(),
+                    onChanged: (String? newValue) {
+                      ref.read(houseFilterProvider.notifier).state = newValue;
+                    },
+                    items:
+                        houses.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value,
+                              style: customTextStyle.copyWith(
+                                color: const Color.fromARGB(255, 206, 177, 223),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              // Müzik açma/kapama butonu
+              IconButton(
+                onPressed: toggleMusic,
+                icon: ShaderMask(
+                  shaderCallback:
+                      (bounds) => const LinearGradient(
+                        colors: [Color(0xFFFFEB3B), Color(0xFFFFF176)],
+                      ).createShader(bounds),
+                  child: Icon(
+                    isPlaying.value ? Icons.music_note : Icons.music_off,
+                    color: const Color.fromARGB(255, 255, 238, 7),
+                    shadows: iconShadows,
+                  ),
+                ),
+                tooltip: isPlaying.value ? 'Müziği durdur' : 'Müziği aç',
+              ),
+            ],
           ),
+          const SizedBox(width: 8), // sağdan biraz boşluk
         ],
       ),
       body: Container(

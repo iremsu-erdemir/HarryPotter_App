@@ -12,6 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Ses oynatmak için audioplayers paketi
+  audioplayers: ^6.5.0
+
   # UI & Animasyonlar
   cupertino_icons: ^1.0.6
   lottie: ^3.1.0
@@ -44,3 +47,4 @@ flutter:
   assets:
     - assets/lottie/alive.json
     - assets/lottie/dead.json
+    - assets/sounds/harry_potter.mp3
