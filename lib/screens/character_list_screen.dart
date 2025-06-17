@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:harry_potter_app/providers/character_provider.dart';
 import 'package:harry_potter_app/widgets/character_card.dart';
 import 'package:harry_potter_app/widgets/error_message_widget.dart';
@@ -28,6 +27,24 @@ class CharacterListScreen extends HookConsumerWidget {
     const Color darkPurple = Color(0xFF3B2C5A);
     const Color goldColor = Color(0xFFFFC107);
 
+    const TextStyle customTextStyle = TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+      color: Color.fromARGB(255, 212, 15, 90),
+      shadows: [
+        Shadow(
+          color: Colors.yellowAccent,
+          blurRadius: 10,
+          offset: Offset(0, 0),
+        ),
+        Shadow(color: Colors.black54, offset: Offset(1, 1), blurRadius: 3),
+      ],
+    );
+
+    const List<Shadow> iconShadows = [
+      Shadow(color: Colors.black54, blurRadius: 4, offset: Offset(2, 2)),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: deepNightBlue,
@@ -38,16 +55,35 @@ class CharacterListScreen extends HookConsumerWidget {
           },
           decoration: InputDecoration(
             hintText: ' Karakter ara...  ✨',
-            hintStyle: GoogleFonts.cinzelDecorative(
-              color: const Color.fromARGB(255, 255, 255, 255),
-              fontWeight: FontWeight.bold,
+            hintStyle: customTextStyle.copyWith(
+              color: const Color.fromARGB(255, 213, 186, 216),
             ),
             border: InputBorder.none,
-            prefixIcon: const Icon(Icons.search, color: goldColor),
+            prefixIcon: ShaderMask(
+              shaderCallback:
+                  (bounds) => const LinearGradient(
+                    colors: [Color(0xFFFFEB3B), Color(0xFFFFF176)],
+                  ).createShader(bounds),
+              child: const Icon(
+                Icons.search,
+                color: Color.fromARGB(255, 255, 251, 7),
+                shadows: iconShadows,
+              ),
+            ),
             suffixIcon:
                 searchController.text.isNotEmpty
                     ? IconButton(
-                      icon: const Icon(Icons.clear, color: goldColor),
+                      icon: ShaderMask(
+                        shaderCallback:
+                            (bounds) => const LinearGradient(
+                              colors: [Color(0xFFFFEB3B), Color(0xFFFFF176)],
+                            ).createShader(bounds),
+                        child: const Icon(
+                          Icons.clear,
+                          color: Color.fromARGB(255, 255, 238, 7),
+                          shadows: iconShadows,
+                        ),
+                      ),
                       onPressed: () {
                         searchController.clear();
                         ref.read(searchQueryProvider.notifier).state = '';
@@ -56,24 +92,37 @@ class CharacterListScreen extends HookConsumerWidget {
                     )
                     : null,
           ),
-          style: GoogleFonts.cinzelDecorative(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+          style: customTextStyle.copyWith(
+            color: const Color.fromARGB(244, 217, 158, 224),
           ),
-          cursorColor: goldColor,
+          cursorColor: const Color.fromARGB(255, 255, 238, 7),
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: DropdownButton<String>(
               value: selectedHouse,
+              hint: Text(
+                'Evi Seç...',
+                style: customTextStyle.copyWith(
+                  color: const Color.fromARGB(255, 248, 248, 248),
+                ),
+              ),
               dropdownColor: deepNightBlue,
-              icon: const Icon(Icons.list_sharp, color: goldColor),
+              icon: ShaderMask(
+                shaderCallback:
+                    (bounds) => const LinearGradient(
+                      colors: [Color(0xFFFFEB3B), Color(0xFFFFF176)],
+                    ).createShader(bounds),
+                child: const Icon(
+                  Icons.list_sharp,
+                  color: Color.fromARGB(255, 253, 230, 25),
+                  shadows: iconShadows,
+                ),
+              ),
               underline: const SizedBox(),
               onChanged: (String? newValue) {
-                if (newValue != null) {
-                  ref.read(houseFilterProvider.notifier).state = newValue;
-                }
+                ref.read(houseFilterProvider.notifier).state = newValue;
               },
               items:
                   houses.map<DropdownMenuItem<String>>((String value) {
@@ -81,9 +130,8 @@ class CharacterListScreen extends HookConsumerWidget {
                       value: value,
                       child: Text(
                         value,
-                        style: GoogleFonts.cinzelDecorative(
-                          color: const Color.fromARGB(255, 248, 248, 248),
-                          fontWeight: FontWeight.bold,
+                        style: customTextStyle.copyWith(
+                          color: const Color.fromARGB(255, 206, 177, 223),
                         ),
                       ),
                     );
@@ -103,20 +151,21 @@ class CharacterListScreen extends HookConsumerWidget {
         child: charactersAsyncValue.when(
           data: (characters) {
             if (characters.isEmpty) {
-              if (selectedHouse != 'Tümü' || searchController.text.isNotEmpty) {
-                return Center(
+              if ((selectedHouse != null && selectedHouse != 'Tümü') ||
+                  searchController.text.isNotEmpty) {
+                return const Center(
                   child: MagicText(
                     '🔮 Aradığınız kriterlere uygun karakter bulunamadı!',
                     fontSize: 18,
                   ),
                 );
               }
-              return Center(
+              return const Center(
                 child: MagicText('Hiç karakter bulunamadı.', fontSize: 18),
               );
             }
             return RefreshIndicator(
-              color: const Color.fromARGB(255, 255, 255, 255),
+              color: const Color.fromARGB(255, 208, 186, 221),
               onRefresh:
                   () =>
                       ref
@@ -133,14 +182,16 @@ class CharacterListScreen extends HookConsumerWidget {
           },
           loading:
               () => const Center(
-                child: CircularProgressIndicator(color: goldColor),
+                child: CircularProgressIndicator(
+                  color: Color.fromARGB(255, 255, 238, 7),
+                ),
               ),
           error: (error, stack) {
             return ErrorMessageWidget(
               message: error.toString(),
               onRefresh: () {
                 ref.read(allCharactersProvider.notifier).refreshCharacters();
-                ref.read(houseFilterProvider.notifier).state = 'Tümü';
+                ref.read(houseFilterProvider.notifier).state = null;
                 ref.read(searchQueryProvider.notifier).state = '';
                 searchController.clear();
               },

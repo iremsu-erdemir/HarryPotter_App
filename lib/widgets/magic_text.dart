@@ -19,14 +19,13 @@ class MagicText extends StatelessWidget {
         text,
         textAlign: TextAlign.center,
         style: TextStyle(
-          // GoogleFonts.cinzelDecorative yerine TextStyle kullanıldı
-          fontFamily: 'HarryPotter', // Özel yazı tipi ailesini burada belirtin
+          fontFamily: 'HarryPotter',
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
           shadows: [
             Shadow(
               blurRadius: 12,
-              color: Colors.black.withOpacity(0.5),
+              color: const Color.fromARGB(255, 216, 207, 219).withOpacity(0.5),
               offset: const Offset(2, 2),
             ),
           ],

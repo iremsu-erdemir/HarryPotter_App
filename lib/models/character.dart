@@ -1,4 +1,3 @@
-// lib/models/character.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'character.freezed.dart';
@@ -9,7 +8,7 @@ class Character with _$Character {
   const factory Character({
     required String id,
     required String name,
-    List<String>? alternateNames, // BURAYI NULLABLE YAPIN!
+    List<String>? alternateNames,
     required String species,
     required String gender,
     String? house,
@@ -24,7 +23,7 @@ class Character with _$Character {
     required bool hogwartsStudent,
     required bool hogwartsStaff,
     String? actor,
-    List<String>? alternateActors, // BURAYI NULLABLE YAPIN!
+    List<String>? alternateActors,
     required bool alive,
     String? image,
   }) = _Character;

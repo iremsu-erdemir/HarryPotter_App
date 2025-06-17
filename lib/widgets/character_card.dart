@@ -147,7 +147,7 @@ class _CharacterCardState extends State<CharacterCard>
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
-                      color: goldColor,
+                      color: Color.fromARGB(255, 212, 15, 90),
                       shadows: [
                         Shadow(
                           color: Colors.orangeAccent,
@@ -272,7 +272,12 @@ class _CharacterCardState extends State<CharacterCard>
             color: color,
             shadows: [
               Shadow(
-                color: Colors.black.withOpacity(0.5),
+                color: const Color.fromARGB(
+                  255,
+                  255,
+                  253,
+                  253,
+                ).withOpacity(0.5),
                 blurRadius: 4,
                 offset: const Offset(1, 1),
               ),
